@@ -1,17 +1,13 @@
 #pragma once
-#include <windows.h>
 #include <functional>
+
+class CoroutineImpl;
 
 class Coroutine
 {
 private:
-	static void* MainFiber;
-	void* mCurrentFiber;
-	std::function<void()> mFunction;
-	bool mIsDone = false;
-
-private:
-	static void WINAPI proc(LPVOID data);
+	CoroutineImpl* mCoroutineImpl;
+	static CoroutineImpl* CurrentRunningCoroutine;
 
 public:
 	Coroutine(std::function<void()> lambda);

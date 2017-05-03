@@ -1,31 +1,36 @@
 #include "Coroutine.h"
+#include "fiber_coroutine_impl.h"
+#include "thread_coroutine_impl.h"
 
-void* Coroutine::MainFiber = nullptr;
+CoroutineImpl* Coroutine::CurrentRunningCoroutine = nullptr;
 
 Coroutine::Coroutine(std::function<void()> lambda)
 {
-	mFunction = lambda;
 
-	if (MainFiber == nullptr)
-	{
-		MainFiber = ConvertThreadToFiber(NULL);
-	}
+#ifdef _WIN32
+	mCoroutineImpl = new FiberCoroutineImpl();
+#else
+	mCoroutineImpl = new ThreadCoroutineImpl();
+#endif
 
-	mCurrentFiber = CreateFiber(0, &proc, this);
+	mCoroutineImpl->SetFunction(lambda);
+
+	mCoroutineImpl->Initialise();
 }
 
 void Coroutine::Resume()
 {
-	if (!mIsDone)
+	if (!mCoroutineImpl->IsDone())
 	{
-		SwitchToFiber(mCurrentFiber);
+		CurrentRunningCoroutine = mCoroutineImpl;
+		mCoroutineImpl->ResumeCoroutine();
 	}
 }
 
 void Coroutine::StopCoroutine()
 {
-	mIsDone = true;
-	YieldCoroutine();
+	//mIsDone = true;
+	//YieldCoroutine();
 }
 
 
@@ -33,13 +38,8 @@ void Coroutine::StopCoroutine()
 
 void Coroutine::YieldCoroutine()
 {
-	SwitchToFiber(MainFiber);
-}
-
-void WINAPI Coroutine::proc(LPVOID data)
-{
-	Coroutine* coroutine = reinterpret_cast<Coroutine*>(data);
-	coroutine->mFunction();
-	coroutine->mIsDone = true;
-	coroutine->YieldCoroutine();
+	if (CurrentRunningCoroutine != nullptr)
+	{
+		CurrentRunningCoroutine->YieldCoroutine();
+	}
 }

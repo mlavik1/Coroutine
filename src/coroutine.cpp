@@ -27,12 +27,10 @@ void Coroutine::Resume()
 	}
 }
 
-void Coroutine::StopCoroutine()
+bool Coroutine::IsDone()
 {
-	//mIsDone = true;
-	//YieldCoroutine();
+	return mCoroutineImpl->IsDone();
 }
-
 
 // static
 

@@ -1,5 +1,6 @@
 #include <iostream>
 #include "coroutine.h"
+#include <intrin.h>
 
 void doStuff(int value)
 {
@@ -20,6 +21,14 @@ int main(int args, char argv)
 	coroutine2.Resume();
 	coroutine2.Resume();
 	coroutine1.Resume();
+	coroutine1.Resume(); // should do nothing
+
+	// this is the proper way to create and use coroutines:
+	Coroutine coroutine3([]() {doStuff(1001); });
+	while (!coroutine3.IsDone())
+	{
+		coroutine3.Resume();
+	}
 
 	std::cout << "done" << std::endl;
 

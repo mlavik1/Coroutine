@@ -1,7 +1,14 @@
+#ifdef _WIN32
 #pragma once
 
 #include "coroutine_impl.h"
 #include <Windows.h>
+
+/*=============================================================================================
+Coroutine implementation, using Windows Fiber API.
+
+This can only be used on Windows.
+==============================================================================================*/
 
 class FiberCoroutineImpl : public CoroutineImpl
 {
@@ -19,3 +26,4 @@ public:
 	void YieldCoroutine();
 	bool IsDone();
 };
+#endif

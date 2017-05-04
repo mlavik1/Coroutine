@@ -1,3 +1,4 @@
+#ifdef _WIN32
 #include "fiber_coroutine_impl.h"
 
 void* FiberCoroutineImpl::MainFiber = nullptr;
@@ -34,3 +35,4 @@ bool FiberCoroutineImpl::IsDone()
 {
 	return mIsDone;
 }
+#endif
